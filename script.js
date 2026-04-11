@@ -1,24 +1,10 @@
 // script.js
 import { saveScore } from './firebase.js';
 
-// 1. Audio Setup (Using Howler.js for smoothness)
-const sfx = {
-    bg: new Howl({
-        src: ['https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3'],
-        loop: true,
-        volume: 0.2
-    }),
-    success: new Howl({ src: ['https://assets.mixkit.co/sfx/preview/mixkit-bright-answer-263.mp3'], volume: 0.5 }),
-    wrong: new Howl({ src: ['https://assets.mixkit.co/sfx/preview/mixkit-fail-modular-error-813.mp3'], volume: 0.5 }),
-    click: new Howl({ src: ['https://assets.mixkit.co/sfx/preview/mixkit-modern-technology-select-3124.mp3'], volume: 0.3 }),
-    gameOver: new Howl({ src: ['https://assets.mixkit.co/sfx/preview/mixkit-system-error-tone-2552.mp3'], volume: 0.6 })
-};
-
-// 2. Game State
+// Game State
 let state = {
     level: 1,
     score: 0,
-    lives: 3,
     currentAnswer: "",
     timeLeft: 45,
     timerInterval: null,
@@ -26,7 +12,7 @@ let state = {
     isProcessing: false
 };
 
-// 3. DOM Elements
+// DOM Elements
 const puzzleText = document.getElementById('puzzle-text');
 const answerInput = document.getElementById('answer-input');
 const submitBtn = document.getElementById('submit-btn');
@@ -37,17 +23,8 @@ const puzzleContent = document.getElementById('puzzle-content');
 const lvlDisplay = document.getElementById('lvl-display');
 const scoreDisplay = document.getElementById('score-display');
 const timerEl = document.getElementById('timer');
-const livesContainer = document.getElementById('lives-container');
 
-// 4. Initialize Game
-function init() {
-    sfx.bg.play();
-    updateHUD();
-    fetchPuzzle();
-    startTimer();
-}
-
-// 5. Fetch Puzzle logic
+// 1. Fetch Puzzle from Serverless API
 async function fetchPuzzle() {
     if (state.isProcessing) return;
     toggleLoader(true);
@@ -60,137 +37,31 @@ async function fetchPuzzle() {
         });
         
         const data = await res.json();
+        
         if (data.error) throw new Error(data.error);
 
         state.currentAnswer = data.answer.toLowerCase().trim();
+        puzzleText.innerText = data.puzzle;
         
-        // Typing effect for the puzzle
-        puzzleText.innerText = "";
         toggleLoader(false);
-        typeWriter(data.puzzle);
-        
+        startTimer();
     } catch (err) {
-        console.error("Fetch Error:", err);
-        showFeedback("CONNECTION INTERRUPTED. RETRYING...", "text-yellow-500");
-        setTimeout(fetchPuzzle, 3000);
+        console.error(err);
+        puzzleText.innerText = "System Failure. Could not connect to the AI's mind. Try refreshing.";
+        toggleLoader(false);
     }
 }
 
-// 6. Handle Answer Submission
-async function handleAnswer() {
-    const userAns = answerInput.value.toLowerCase().trim();
-    if (!userAns || state.isProcessing) return;
-
-    sfx.click.play();
-
-    if (userAns === state.currentAnswer) {
-        // CORRECT ANSWER
-        sfx.success.play();
-        state.score += (state.level * 10) + state.timeLeft;
-        state.level++;
-        state.timeLeft = Math.max(20, 45 - (state.level * 2)); // Level hard hota jayega
-        
-        showFeedback("ACCESS GRANTED. ESCAPING TO NEXT NODE...", "text-cyan-400");
-        gsap.to("#game-card", { borderColor: "#22d3ee", duration: 0.3, yoyo: true, repeat: 1 });
-        
-        answerInput.value = "";
-        updateHUD();
-        fetchPuzzle();
-    } else {
-        // WRONG ANSWER
-        sfx.wrong.play();
-        state.lives--;
-        updateHUD();
-        
-        gsap.to("#game-card", { x: 10, repeat: 5, yoyo: true, duration: 0.05 }); // Shake effect
-        showFeedback("WRONG OVERRIDE CODE. SYSTEM BREACH DETECTED!", "text-red-500");
-
-        if (state.lives <= 0) {
-            endGame("OUT OF LIVES");
-        }
-    }
-}
-
-// 7. Timer Logic
-function startTimer() {
-    state.timerInterval = setInterval(() => {
-        state.timeLeft--;
-        timerEl.innerText = `${state.timeLeft}s`;
-
-        if (state.timeLeft <= 10) {
-            timerEl.classList.add('text-red-500', 'animate-pulse');
-            // Heartbeat sound logic could go here
-        }
-
-        if (state.timeLeft <= 0) endGame("TIME EXPIRED");
-    }, 1000);
-}
-
-// 8. HUD Updates (Lives, Score, Level)
-function updateHUD() {
-    lvlDisplay.innerText = state.level < 10 ? `0${state.level}` : state.level;
-    scoreDisplay.innerText = state.score.toString().padStart(4, '0');
-    
-    // Update Hearts UI
-    livesContainer.innerHTML = '❤️'.repeat(state.lives);
-}
-
-// 9. UI Animations
-function toggleLoader(show) {
-    state.isProcessing = show;
-    if (show) {
-        loader.style.display = 'flex';
-        gsap.to(puzzleContent, { opacity: 0, scale: 0.95, duration: 0.3 });
-    } else {
-        loader.style.display = 'none';
-        gsap.to(puzzleContent, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" });
-    }
-}
-
-function typeWriter(text) {
-    let i = 0;
-    const interval = setInterval(() => {
-        puzzleText.innerText += text.charAt(i);
-        i++;
-        if (i > text.length) clearInterval(interval);
-    }, 30);
-}
-
-function showFeedback(text, colorClass) {
-    feedback.innerText = text;
-    feedback.className = `h-4 text-center text-sm font-bold tracking-widest mt-4 ${colorClass}`;
-    gsap.from(feedback, { opacity: 0, y: 5, duration: 0.3 });
-}
-
-// 10. End Game Logic
-async function endGame(reason) {
-    clearInterval(state.timerInterval);
-    sfx.bg.stop();
-    sfx.gameOver.play();
-    
-    submitBtn.disabled = true;
-    showFeedback(`SYSTEM SHUTDOWN: ${reason}`, "text-red-600 font-black");
-    
-    // Save to Firebase
-    await saveScore(state.username, state.score, state.level);
-    
-    setTimeout(() => {
-        alert(`GAME OVER\nReason: ${reason}\nFinal Score: ${state.score}\nLevel: ${state.level}`);
-        window.location.href = 'index.html';
-    }, 2000);
-}
-
-// 11. Hint System
-hintBtn.onclick = async () => {
-    if (state.isProcessing || state.score < 20) {
-        showFeedback("NOT ENOUGH DATA FOR HINT (Need 20 pts)", "text-yellow-600");
+// 2. Hint System
+async function getHint() {
+    if (state.score < 10) {
+        showFeedback("Not enough points for a hint! (Need 10)", "text-yellow-500");
         return;
     }
-    
-    sfx.click.play();
-    state.score -= 20;
-    updateHUD();
-    
+
+    hintBtn.disabled = true;
+    hintBtn.innerText = "Consulting AI...";
+
     try {
         const res = await fetch('/api/generatePuzzle', {
             method: 'POST',
@@ -201,18 +72,111 @@ hintBtn.onclick = async () => {
             })
         });
         const data = await res.json();
-        showFeedback(`HINT: ${data.puzzle}`, "text-cyan-300");
+        
+        state.score -= 10;
+        updateHUD();
+        alert(`🧠 AI WHISPERS: ${data.puzzle || data.hint}`);
     } catch (err) {
-        showFeedback("HINT UPLINK FAILED.", "text-red-400");
+        alert("Hint failed. The AI is being stubborn.");
+    } finally {
+        hintBtn.disabled = false;
+        hintBtn.innerText = "💡 Hint";
     }
-};
+}
+
+// 3. Timer Logic
+function startTimer() {
+    clearInterval(state.timerInterval);
+    state.timeLeft = 45 - (state.level * 2); // Levels get faster
+    if (state.timeLeft < 15) state.timeLeft = 15; // Min 15 seconds
+    
+    updateHUD();
+    state.timerInterval = setInterval(() => {
+        state.timeLeft--;
+        updateHUD();
+        if (state.timeLeft <= 0) endGame();
+    }, 1000);
+}
+
+// 4. Handle Answer Submission
+function handleAnswer() {
+    const userAns = answerInput.value.toLowerCase().trim();
+    const gameCard = document.getElementById('game-card');
+
+    if (userAns === state.currentAnswer) {
+        // SUCCESS
+        clearInterval(state.timerInterval);
+        state.score += (state.timeLeft * 5) + (state.level * 10);
+        state.level++;
+        
+        showFeedback("ACCESS GRANTED. PROCEEDING...", "text-green-400");
+        
+        // GSAP Success Animation
+        gsap.to(gameCard, { scale: 1.02, boxShadow: "0 0 30px rgba(34, 211, 238, 0.4)", duration: 0.3, yoyo: true, repeat: 1 });
+        
+        setTimeout(() => {
+            answerInput.value = "";
+            fetchPuzzle();
+        }, 1500);
+    } else {
+        // WRONG ANSWER
+        showFeedback("ACCESS DENIED. TRY AGAIN.", "text-red-500");
+        gameCard.classList.add('shake');
+        setTimeout(() => gameCard.classList.remove('shake'), 500);
+        answerInput.value = "";
+    }
+}
+
+// 5. HUD & UI Helpers
+function updateHUD() {
+    lvlDisplay.innerText = state.level;
+    scoreDisplay.innerText = state.score;
+    timerEl.innerText = `${state.timeLeft}s`;
+    if (state.timeLeft <= 10) timerEl.classList.add('text-red-500', 'animate-pulse');
+    else timerEl.classList.remove('text-red-500', 'animate-pulse');
+}
+
+function toggleLoader(show) {
+    state.isProcessing = show;
+    if (show) {
+        loader.style.display = 'flex';
+        gsap.to(puzzleContent, { opacity: 0, y: 10, duration: 0.3 });
+    } else {
+        loader.style.display = 'none';
+        gsap.to(puzzleContent, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" });
+    }
+}
+
+function showFeedback(text, colorClass) {
+    feedback.innerText = text;
+    feedback.className = `h-6 text-center font-bold mt-4 ${colorClass}`;
+}
+
+async function endGame() {
+    clearInterval(state.timerInterval);
+    submitBtn.disabled = true;
+    showFeedback("TIME'S UP. TRAP CLOSED.", "text-red-600");
+    
+    // Save to Firebase
+    await saveScore(state.username, state.score, state.level);
+    
+    setTimeout(() => {
+        alert(`The AI trapped you! \nFinal Score: ${state.score} \nLevel Reached: ${state.level}`);
+        window.location.href = 'index.html';
+    }, 2000);
+}
 
 // Event Listeners
 submitBtn.addEventListener('click', handleAnswer);
-answerInput.addEventListener('keypress', (e) => {
+hintBtn.addEventListener('click', getHint);
+answerInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') handleAnswer();
 });
 
-// Start the game
-init();
-            
+// Start Game
+if (!state.username || state.username === 'Anonymous') {
+    // Basic fallback if localStorage is empty
+    state.username = "Player_" + Math.floor(Math.random() * 1000);
+}
+
+fetchPuzzle();

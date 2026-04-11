@@ -3,129 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL ACTIVE | AI Mind Trap</title>
+    <title>Playing | AI Mind Trap</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .crt-line {
-            background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
-            background-size: 100% 4px;
-            pointer-events: none;
-        }
-        .scanner {
-            width: 100%;
-            height: 2px;
-            background: rgba(6, 182, 212, 0.5);
-            position: absolute;
-            box-shadow: 0 0 15px 2px rgba(6, 182, 212, 0.8);
-            z-index: 20;
-            animation: scan 4s linear infinite;
-        }
-        @keyframes scan {
-            0% { top: 0%; }
-            100% { top: 100%; }
-        }
-        .heart-pulse { animation: pulse 1s infinite; }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-    </style>
 </head>
-<body class="bg-slate-950 text-white overflow-hidden font-mono">
-    <div class="fixed inset-0 crt-line z-50"></div>
-    
-    <div class="max-w-5xl mx-auto min-h-screen p-4 flex flex-col relative z-10">
-        <div class="flex justify-between items-center py-8 border-b border-cyan-900/30 mb-8">
-            <div class="space-y-1">
-                <div class="text-[10px] text-cyan-500 tracking-[0.3em] font-bold">SYSTEM STATUS: ACTIVE</div>
-                <div class="text-2xl font-black">NODE <span id="lvl-display" class="text-cyan-400">01</span></div>
+<body class="bg-slate-950 text-white">
+    <div class="max-w-4xl mx-auto min-h-screen p-4 flex flex-col">
+        <div class="flex justify-between items-center py-6">
+            <div class="text-slate-400 font-bold">LEVEL <span id="lvl-display" class="text-cyan-500">1</span></div>
+            <div class="bg-slate-900 px-4 py-1 rounded-full border border-slate-700">
+                SCORE: <span id="score-display" class="text-yellow-500">0</span>
             </div>
-            
-            <div class="flex gap-8 items-center bg-slate-900/80 px-8 py-3 rounded-2xl border border-slate-800 shadow-2xl">
-                <div class="text-center">
-                    <div class="text-[10px] text-slate-500 uppercase tracking-widest">Score</div>
-                    <div id="score-display" class="text-xl font-bold text-yellow-500">0000</div>
-                </div>
-                <div class="h-8 w-[1px] bg-slate-800"></div>
-                <div class="text-center">
-                    <div class="text-[10px] text-slate-500 uppercase tracking-widest">Lives</div>
-                    <div id="lives-container" class="flex gap-1 text-red-500 text-lg">
-                        <span class="heart-pulse">❤️</span>
-                        <span class="heart-pulse">❤️</span>
-                        <span class="heart-pulse">❤️</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="text-right">
-                <div class="text-[10px] text-red-500 tracking-[0.2em] font-bold">BREACH TIMER</div>
-                <div id="timer" class="text-3xl font-black text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]">45s</div>
-            </div>
+            <div id="timer" class="font-mono text-red-500 text-xl font-bold">30s</div>
         </div>
 
         <div class="flex-grow flex flex-col justify-center items-center">
-            <div id="game-card" class="w-full max-w-3xl bg-slate-900/40 border border-cyan-500/20 p-10 rounded-[2rem] relative overflow-hidden backdrop-blur-md shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                <div class="scanner"></div>
-                
-                <div id="loader" class="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center z-30 transition-all">
-                    <div class="relative w-20 h-20 mb-4">
-                        <div class="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
-                        <div class="absolute inset-0 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                    <div class="text-cyan-500 animate-pulse tracking-[0.4em] text-xs font-bold uppercase">Decrypting Mind Trap...</div>
+            <div id="game-card" class="w-full max-w-2xl bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+                <div id="loader" class="absolute inset-0 bg-slate-900 flex items-center justify-center z-10">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-cyan-500"></div>
                 </div>
 
-                <div id="puzzle-content" class="space-y-10 opacity-0 relative z-20">
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 bg-cyan-500 rounded-full animate-ping"></span>
-                            <span class="text-cyan-500 text-xs font-bold tracking-widest uppercase">Encrypted Riddle:</span>
-                        </div>
-                        <h2 class="text-2xl md:text-3xl font-medium leading-relaxed text-slate-100 italic" id="puzzle-text">
-                            Waiting for neural uplink...
-                        </h2>
-                    </div>
+                <div id="puzzle-content" class="space-y-6 opacity-0">
+                    <h2 class="text-2xl font-medium leading-relaxed text-slate-200" id="puzzle-text">
+                        Generating your first challenge...
+                    </h2>
                     
-                    <div class="space-y-6">
-                        <div class="relative">
-                            <input type="text" id="answer-input" autocomplete="off" placeholder="Enter override code..." 
-                                class="w-full bg-black/50 border-2 border-slate-800 p-5 rounded-2xl focus:outline-none focus:border-cyan-500 text-xl transition-all font-bold tracking-widest text-cyan-400 placeholder:text-slate-700 uppercase">
-                        </div>
+                    <div class="space-y-4">
+                        <input type="text" id="answer-input" placeholder="Type your answer..." 
+                            class="w-full bg-slate-950 border border-slate-700 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 text-lg transition-all">
                         
                         <div class="flex gap-4">
-                            <button id="submit-btn" class="flex-[2] bg-cyan-600 hover:bg-cyan-500 py-5 rounded-2xl font-black uppercase tracking-[0.3em] transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-cyan-900/20">
-                                Submit Answer
+                            <button id="submit-btn" class="flex-grow bg-cyan-600 hover:bg-cyan-500 py-4 rounded-xl font-bold uppercase tracking-widest transition-all">
+                                Submit
                             </button>
-                            <button id="hint-btn" class="flex-1 bg-slate-800 hover:bg-slate-700 rounded-2xl font-bold transition-all flex items-center justify-center gap-2 group">
-                                <span class="group-hover:rotate-12 transition-transform">💡</span> HINT
+                            <button id="hint-btn" class="px-6 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all">
+                                💡 Hint
                             </button>
                         </div>
                     </div>
-                    <div id="feedback" class="h-4 text-center text-sm font-bold tracking-widest"></div>
+                    <p id="feedback" class="h-6 text-center font-bold"></p>
                 </div>
             </div>
         </div>
 
-        <div class="py-8 flex justify-between items-center text-[10px] text-slate-600 tracking-[0.3em] font-bold uppercase">
-            <div>Encrypted Connection: AES-256</div>
-            <div class="animate-pulse">Mind Trap Terminal v2.0</div>
-            <div>Node: Haryana_Bhiwani_01</div>
+        <div class="py-10 text-center text-slate-500 text-xs">
+            AI Mind Trap v1.0 • Powered by OpenRouter
         </div>
     </div>
 
-    <audio id="bg-music" loop>
-        <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
-    </audio>
-
     <script type="module" src="script.js"></script>
-    <script>
-        // Quick visual fix for mobile height
-        let vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-    </script>
 </body>
-                    </html>
-                            
+</html>
