@@ -54,7 +54,7 @@ async function fetchPuzzle() {
 
 // 2. Hint System
 async function getHint() {
-    if (state.score < 0) {
+    if (state.score < 10) {
         showFeedback("Not enough points for a hint! (Need 10)", "text-yellow-500");
         return;
     }
