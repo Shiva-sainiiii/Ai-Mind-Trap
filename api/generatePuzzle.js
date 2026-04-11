@@ -41,7 +41,7 @@ export default async function handler(req, res) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "nvidia/nemotron-3-super-120b-a12b:free",
+                model: "openrouter/free",
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.9, // Higher temperature means more creative and unique answers
                 top_p: 0.9
