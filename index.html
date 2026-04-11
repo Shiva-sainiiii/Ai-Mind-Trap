@@ -3,69 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Mind Trap | Escape the Logic</title>
+    <title>AI MIND TRAP | The Ultimate Escape</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Cyberpunk Upgrades */
+        .neon-text {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.7), 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+        
+        .crt-overlay::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 50;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        .glitch-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .glitch-btn:hover {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Floating particles background hint */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
 </head>
-<body class="bg-slate-950 text-white overflow-hidden">
-    <div id="app" class="h-screen flex flex-col items-center justify-center p-4">
-        <div class="text-center hero-section">
-            <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600">
+<body class="bg-slate-950 text-white overflow-hidden crt-overlay">
+    
+    <div id="app" class="h-screen flex flex-col items-center justify-center p-6 relative">
+        
+        <div class="text-center hero-section z-10">
+            <div class="mb-2">
+                <span class="px-3 py-1 text-xs font-bold tracking-[0.3em] text-cyan-500 border border-cyan-500/30 rounded-full uppercase">
+                    System Protocol v1.0
+                </span>
+            </div>
+            <h1 class="text-6xl md:text-9xl font-black mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-cyan-300 via-cyan-500 to-purple-600 neon-text">
                 AI MIND TRAP
             </h1>
-            <p class="text-slate-400 mb-8 text-lg">Can you outsmart the machine?</p>
+            <p class="text-slate-400 mb-10 text-lg md:text-xl font-light tracking-wide max-w-lg mx-auto">
+                The machine has created a logic labyrinth. <br>
+                <span class="text-cyan-400/80 italic">Can you find the exit?</span>
+            </p>
             
-            <div class="space-y-4">
-                <input type="text" id="username" placeholder="Enter Your Name" 
-                    class="block w-full max-w-xs mx-auto bg-slate-900 border border-slate-700 p-3 rounded-lg focus:outline-none focus:border-cyan-500 transition-all">
-                <button id="start-btn" class="bg-cyan-600 hover:bg-cyan-500 px-10 py-4 rounded-full font-bold text-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-cyan-900/20">
-                    START ESCAPE
+            <div class="space-y-6 max-w-sm mx-auto">
+                <div class="relative group">
+                    <input type="text" id="username" placeholder="IDENTIFY YOURSELF..." 
+                        class="block w-full bg-slate-900/80 border-2 border-slate-800 p-4 rounded-xl focus:outline-none focus:border-cyan-500 transition-all text-center font-bold tracking-widest text-cyan-400 placeholder:text-slate-600">
+                    <div class="absolute inset-0 rounded-xl bg-cyan-500/10 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                </div>
+
+                <button id="start-btn" class="glitch-btn w-full bg-cyan-600 hover:bg-cyan-500 text-white py-5 rounded-xl font-black text-xl tracking-[0.2em] shadow-lg shadow-cyan-900/40 uppercase">
+                    INITIALIZE ESCAPE
                 </button>
             </div>
         </div>
 
-        <div class="mt-12 w-full max-w-md bg-slate-900/50 p-6 rounded-2xl border border-slate-800 leaderboard-card">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <span class="text-yellow-500">🏆</span> Top Escapists
-            </h2>
-            <div id="leaderboard-list" class="space-y-2 text-sm">
-                <p class="text-slate-500 italic">Loading scores...</p>
+        <div class="mt-16 w-full max-w-lg glass-card p-6 rounded-3xl leaderboard-card z-10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-3">
+                    <span class="text-2xl">🏆</span> TOP ESCAPISTS
+                </h2>
+                <div class="h-1 flex-grow mx-4 bg-gradient-to-r from-cyan-500/50 to-transparent rounded-full"></div>
             </div>
+            
+            <div id="leaderboard-list" class="space-y-3">
+                <div class="animate-pulse flex justify-between p-3 bg-slate-800/50 rounded-lg">
+                    <div class="h-4 w-24 bg-slate-700 rounded"></div>
+                    <div class="h-4 w-16 bg-slate-700 rounded"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-6 text-slate-600 text-[10px] tracking-[0.5em] uppercase pointer-events-none">
+            Connection Secured • Neural Link Active • Haryana Server Node
         </div>
     </div>
 
     <script type="module">
-        import { getLeaderboard } from './firebase.js';
+        import { getLeaderboard } from './firebase.js'; // Firebase integration
         
-        // Initial Animations
-        gsap.from(".hero-section", { opacity: 0, y: 50, duration: 1, ease: "power4.out" });
-        gsap.from(".leaderboard-card", { opacity: 0, delay: 0.5, duration: 1 });
+        // GSAP Advanced Entrance
+        const tl = gsap.timeline();
+        tl.from(".hero-section", { opacity: 0, scale: 0.9, duration: 1.2, ease: "expo.out" })
+          .from(".leaderboard-card", { opacity: 0, y: 30, duration: 1, ease: "power3.out" }, "-=0.5")
+          .from("input, button", { opacity: 0, y: 20, stagger: 0.2, duration: 0.8 }, "-=0.8");
 
         const startBtn = document.getElementById('start-btn');
         const usernameInput = document.getElementById('username');
 
+        // Logic for game transition
         startBtn.onclick = () => {
             const name = usernameInput.value.trim();
-            if(!name) return alert("Enter a name to begin!");
-            localStorage.setItem('trap_user', name);
-            gsap.to("body", { opacity: 0, duration: 0.5, onComplete: () => {
-                window.location.href = 'game.html';
-            }});
+            if(!name) {
+                gsap.to(usernameInput, { x: 10, repeat: 5, yoyo: true, duration: 0.05 });
+                return;
+            }
+            
+            localStorage.setItem('trap_user', name); // Store user for session
+            
+            // Exit Animation
+            gsap.to("#app", { 
+                opacity: 0, 
+                scale: 1.1, 
+                filter: "blur(20px)",
+                duration: 0.8, 
+                onComplete: () => {
+                    window.location.href = 'game.html'; // Redirect to game file
+                }
+            });
         };
 
-        // Load Scores
+        // Load Scores with better UI
         async function loadScores() {
-            const scores = await getLeaderboard();
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = scores.map((s, i) => `
-                <div class="flex justify-between p-2 border-b border-slate-800">
-                    <span>${i+1}. ${s.username}</span>
-                    <span class="font-mono text-cyan-400">Lvl ${s.level} - ${s.score}pts</span>
-                </div>
-            `).join('') || '<p>No records yet.</p>';
+            try {
+                const scores = await getLeaderboard();
+                const list = document.getElementById('leaderboard-list');
+                
+                if (scores.length === 0) {
+                    list.innerHTML = '<p class="text-center text-slate-500 italic">No records in memory banks...</p>';
+                    return;
+                }
+
+                list.innerHTML = scores.map((s, i) => `
+                    <div class="flex justify-between items-center p-3 rounded-xl hover:bg-cyan-500/5 transition-colors border-b border-slate-800/50 group">
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs font-mono text-slate-500">${i+1}.</span>
+                            <span class="font-bold tracking-wide group-hover:text-cyan-400 transition-colors">${s.username}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="block font-mono text-cyan-400 font-bold">${s.score} PTS</span>
+                            <span class="text-[10px] text-slate-500 uppercase">LVL ${s.level}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Board failed:", err);
+            }
         }
         loadScores();
     </script>
 </body>
-</html>
+    </html>
+    
