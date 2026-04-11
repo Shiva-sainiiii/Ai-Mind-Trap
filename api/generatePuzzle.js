@@ -37,7 +37,7 @@ export default async function handler(req, res) {
                 "X-Title": "AI Mind Trap Game"
             },
             body: JSON.stringify({
-                model: "google/gemini-2.0-flash-001",
+                model: "nvidia/nemotron-3-super-120b-a12b:free",
                 messages: [{ role: "user", content: prompt }],
                 response_format: { type: "json_object" } // Kuch models JSON mode support karte hain
             })
