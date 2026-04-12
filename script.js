@@ -1,22 +1,23 @@
 // script.js
 import { saveScore } from './firebase.js';
 
-// Game State
+// 🎮 GAME STATE
 let state = {
     level: 1,
     score: 0,
     currentAnswer: "",
+    options: [],
     timeLeft: 45,
     timerInterval: null,
     username: localStorage.getItem('trap_user') || 'Guest',
     isProcessing: false
 };
 
-// DOM Elements
+// 🧩 DOM
 const puzzleText = document.getElementById('puzzle-text');
-const answerInput = document.getElementById('answer-input');
-const submitBtn = document.getElementById('submit-btn');
+const optionsContainer = document.getElementById('options-container');
 const hintBtn = document.getElementById('hint-btn');
+const skipBtn = document.getElementById('skip-btn');
 const feedback = document.getElementById('feedback');
 const loader = document.getElementById('loader');
 const puzzleContent = document.getElementById('puzzle-content');
@@ -24,158 +25,220 @@ const lvlDisplay = document.getElementById('lvl-display');
 const scoreDisplay = document.getElementById('score-display');
 const timerEl = document.getElementById('timer');
 
-// 1. Fetch Puzzle from Serverless API
+// 🎯 FETCH PUZZLE (UPDATED)
 async function fetchPuzzle() {
     if (state.isProcessing) return;
+
     toggleLoader(true);
-    
+
     try {
         const res = await fetch('/api/generatePuzzle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ level: state.level, requestType: 'new' })
         });
-        
+
         const data = await res.json();
-        
+
         if (data.error) throw new Error(data.error);
 
         state.currentAnswer = data.answer.toLowerCase().trim();
+        state.options = data.options || [];
+
         puzzleText.innerText = data.puzzle;
-        
+
+        renderOptions();
+
         toggleLoader(false);
         startTimer();
+
     } catch (err) {
         console.error(err);
-        puzzleText.innerText = "System Failure. Could not connect to the AI's mind. Try refreshing.";
+        puzzleText.innerText = "AI crashed... refresh karo 😵";
         toggleLoader(false);
     }
 }
 
-// 2. Hint System
+// 🧠 RENDER OPTIONS (NEW)
+function renderOptions() {
+    optionsContainer.innerHTML = "";
+
+    state.options.forEach(opt => {
+        const btn = document.createElement("button");
+
+        btn.innerText = opt;
+
+        btn.className = `
+            bg-slate-800 hover:bg-cyan-600 
+            py-4 rounded-xl font-bold 
+            transition-all transform hover:scale-105 active:scale-95
+        `;
+
+        btn.onclick = () => selectOption(opt);
+
+        optionsContainer.appendChild(btn);
+    });
+}
+
+// ✅ HANDLE OPTION CLICK
+function selectOption(selected) {
+    if (state.isProcessing) return;
+
+    const gameCard = document.getElementById('game-card');
+
+    if (selected.toLowerCase() === state.currentAnswer) {
+        // 🎉 CORRECT
+        clearInterval(state.timerInterval);
+
+        state.score += (state.timeLeft * 5) + (state.level * 10);
+        state.level++;
+
+        showFeedback("🔥 Correct! AI ko hara diya!", "text-green-400");
+
+        gsap.to(gameCard, {
+            scale: 1.05,
+            boxShadow: "0 0 30px rgba(34,211,238,0.5)",
+            duration: 0.3,
+            yoyo: true,
+            repeat: 1
+        });
+
+        setTimeout(() => {
+            fetchPuzzle();
+        }, 1200);
+
+    } else {
+        // ❌ WRONG
+        showFeedback("❌ Galat! Dimag use kar 😏", "text-red-500");
+
+        gameCard.classList.add('shake');
+        setTimeout(() => gameCard.classList.remove('shake'), 500);
+    }
+}
+
+// 💡 HINT SYSTEM
 async function getHint() {
     if (state.score < 10) {
-        showFeedback("Not enough points for a hint! (Need 10)", "text-yellow-500");
+        showFeedback("⚠️ 10 points chahiye hint ke liye!", "text-yellow-400");
         return;
     }
 
     hintBtn.disabled = true;
-    hintBtn.innerText = "Consulting AI...";
+    hintBtn.innerText = "AI soch rha hai...";
 
     try {
         const res = await fetch('/api/generatePuzzle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                requestType: 'hint', 
-                currentPuzzle: puzzleText.innerText 
+            body: JSON.stringify({
+                requestType: 'hint',
+                currentPuzzle: puzzleText.innerText
             })
         });
+
         const data = await res.json();
-        
+
         state.score -= 10;
         updateHUD();
-        alert(`🧠 AI WHISPERS: ${data.puzzle || data.hint}`);
-    } catch (err) {
-        alert("Hint failed. The AI is being stubborn.");
-    } finally {
-        hintBtn.disabled = false;
-        hintBtn.innerText = "💡 Hint";
+
+        alert("🧠 Hint: " + (data.hint || data.puzzle));
+
+    } catch {
+        alert("Hint fail ho gaya 😑");
     }
+
+    hintBtn.disabled = false;
+    hintBtn.innerText = "💡 Hint (-10)";
 }
 
-// 3. Timer Logic
+// ⏭️ SKIP SYSTEM
+function skipPuzzle() {
+    if (state.score < 5) {
+        showFeedback("⚠️ 5 points chahiye skip ke liye!", "text-yellow-400");
+        return;
+    }
+
+    state.score -= 5;
+    updateHUD();
+
+    showFeedback("⏭️ Puzzle skipped", "text-blue-400");
+
+    clearInterval(state.timerInterval);
+
+    setTimeout(() => {
+        fetchPuzzle();
+    }, 800);
+}
+
+// ⏱️ TIMER
 function startTimer() {
     clearInterval(state.timerInterval);
-    state.timeLeft = 45 - (state.level * 2); // Levels get faster
-    if (state.timeLeft < 15) state.timeLeft = 15; // Min 15 seconds
-    
+
+    state.timeLeft = 45 - (state.level * 2);
+    if (state.timeLeft < 15) state.timeLeft = 15;
+
     updateHUD();
+
     state.timerInterval = setInterval(() => {
         state.timeLeft--;
         updateHUD();
-        if (state.timeLeft <= 0) endGame();
+
+        if (state.timeLeft <= 0) {
+            endGame();
+        }
     }, 1000);
 }
 
-// 4. Handle Answer Submission
-function handleAnswer() {
-    const userAns = answerInput.value.toLowerCase().trim();
-    const gameCard = document.getElementById('game-card');
-
-    if (userAns === state.currentAnswer) {
-        // SUCCESS
-        clearInterval(state.timerInterval);
-        state.score += (state.timeLeft * 5) + (state.level * 10);
-        state.level++;
-        
-        showFeedback("ACCESS GRANTED. PROCEEDING...", "text-green-400");
-        
-        // GSAP Success Animation
-        gsap.to(gameCard, { scale: 1.02, boxShadow: "0 0 30px rgba(34, 211, 238, 0.4)", duration: 0.3, yoyo: true, repeat: 1 });
-        
-        setTimeout(() => {
-            answerInput.value = "";
-            fetchPuzzle();
-        }, 1500);
-    } else {
-        // WRONG ANSWER
-        showFeedback("ACCESS DENIED. TRY AGAIN.", "text-red-500");
-        gameCard.classList.add('shake');
-        setTimeout(() => gameCard.classList.remove('shake'), 500);
-        answerInput.value = "";
-    }
-}
-
-// 5. HUD & UI Helpers
+// 🎨 UI HELPERS
 function updateHUD() {
     lvlDisplay.innerText = state.level;
     scoreDisplay.innerText = state.score;
     timerEl.innerText = `${state.timeLeft}s`;
-    if (state.timeLeft <= 10) timerEl.classList.add('text-red-500', 'animate-pulse');
-    else timerEl.classList.remove('text-red-500', 'animate-pulse');
+
+    if (state.timeLeft <= 10) {
+        timerEl.classList.add('text-red-500', 'animate-pulse');
+    } else {
+        timerEl.classList.remove('animate-pulse');
+    }
 }
 
 function toggleLoader(show) {
     state.isProcessing = show;
+
     if (show) {
         loader.style.display = 'flex';
         gsap.to(puzzleContent, { opacity: 0, y: 10, duration: 0.3 });
     } else {
         loader.style.display = 'none';
-        gsap.to(puzzleContent, { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" });
+        gsap.to(puzzleContent, { opacity: 1, y: 0, duration: 0.5 });
     }
 }
 
-function showFeedback(text, colorClass) {
+function showFeedback(text, color) {
     feedback.innerText = text;
-    feedback.className = `h-6 text-center font-bold mt-4 ${colorClass}`;
+    feedback.className = `h-6 text-center font-bold ${color}`;
 }
 
+// 🛑 END GAME
 async function endGame() {
     clearInterval(state.timerInterval);
-    submitBtn.disabled = true;
-    showFeedback("TIME'S UP. TRAP CLOSED.", "text-red-600");
-    
-    // Save to Firebase
+
+    showFeedback("💀 TIME UP! AI ne pakad liya!", "text-red-600");
+
     await saveScore(state.username, state.score, state.level);
-    
+
     setTimeout(() => {
-        alert(`The AI trapped you! \nFinal Score: ${state.score} \nLevel Reached: ${state.level}`);
-        window.location.href = 'index.html';
+        alert(`Game Over 😈\nScore: ${state.score}\nLevel: ${state.level}`);
+        window.location.href = "index.html";
     }, 2000);
 }
 
-// Event Listeners
-submitBtn.addEventListener('click', handleAnswer);
+// 🎯 EVENTS
 hintBtn.addEventListener('click', getHint);
-answerInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleAnswer();
-});
+skipBtn.addEventListener('click', skipPuzzle);
 
-// Start Game
-if (!state.username || state.username === 'Anonymous') {
-    // Basic fallback if localStorage is empty
+// 🚀 START GAME
+if (!state.username) {
     state.username = "Player_" + Math.floor(Math.random() * 1000);
 }
 
