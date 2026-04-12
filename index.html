@@ -1,71 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Mind Trap | Escape the Logic</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-slate-950 text-white overflow-hidden">
-    <div id="app" class="h-screen flex flex-col items-center justify-center p-4">
-        <div class="text-center hero-section">
-            <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600">
-                AI MIND TRAP
-            </h1>
-            <p class="text-slate-400 mb-8 text-lg">Can you outsmart the machine?</p>
-            
-            <div class="space-y-4">
-                <input type="text" id="username" placeholder="Enter Your Name" 
-                    class="block w-full max-w-xs mx-auto bg-slate-900 border border-slate-700 p-3 rounded-lg focus:outline-none focus:border-cyan-500 transition-all">
-                <button id="start-btn" class="bg-cyan-600 hover:bg-cyan-500 px-10 py-4 rounded-full font-bold text-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-cyan-900/20">
-                    START ESCAPE
-                </button>
-            </div>
-        </div>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Mind Trap | Escape the Logic</title>
 
-        <div class="mt-12 w-full max-w-md bg-slate-900/50 p-6 rounded-2xl border border-slate-800 leaderboard-card">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                <span class="text-yellow-500">🏆</span> Top Escapists
-            </h2>
-            <div id="leaderboard-list" class="space-y-2 text-sm">
-                <p class="text-slate-500 italic">Loading scores...</p>
-            </div>
-        </div>
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="text-white overflow-hidden">
+
+  <!-- Background Glow -->
+  <div class="absolute inset-0 z-0">
+    <div class="absolute w-[500px] h-[500px] bg-cyan-500/20 blur-[120px] rounded-full top-[-100px] left-[-100px]"></div>
+    <div class="absolute w-[400px] h-[400px] bg-purple-600/20 blur-[120px] rounded-full bottom-[-100px] right-[-100px]"></div>
+  </div>
+
+  <!-- Main Container -->
+  <div id="app" class="relative z-10 h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Title Section -->
+    <div class="text-center hero-section">
+
+      <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
+        AI MIND TRAP
+      </h1>
+
+      <p class="text-slate-400 mb-6 text-lg">
+        Outsmart the AI... or get trapped forever 😈
+      </p>
+
+      <!-- Username Input -->
+      <input 
+        type="text" 
+        id="username" 
+        placeholder="Enter Your Name"
+        class="block w-full max-w-xs mx-auto bg-slate-900 border border-slate-700 p-3 rounded-lg focus:outline-none focus:border-cyan-500 transition-all mb-4 text-center"
+      >
+
+      <!-- Start Button -->
+      <button 
+        id="start-btn"
+        class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:scale-105 px-10 py-4 rounded-full font-bold text-xl transition-all shadow-lg shadow-cyan-900/40 active:scale-95"
+      >
+        START ESCAPE 🚀
+      </button>
+
+      <!-- Mode Tag -->
+      <p class="mt-4 text-xs text-slate-500">
+        🧠 Trick Puzzles • 🎭 Mind Games • 🪤 AI Traps
+      </p>
+
     </div>
 
-    <script type="module">
-        import { getLeaderboard } from './firebase.js';
-        
-        // Initial Animations
-        gsap.from(".hero-section", { opacity: 0, y: 50, duration: 1, ease: "power4.out" });
-        gsap.from(".leaderboard-card", { opacity: 0, delay: 0.5, duration: 1 });
+    <!-- Leaderboard -->
+    <div class="mt-12 w-full max-w-md bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-slate-800 leaderboard-card">
 
-        const startBtn = document.getElementById('start-btn');
-        const usernameInput = document.getElementById('username');
+      <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+        🏆 Top Escapists
+      </h2>
 
-        startBtn.onclick = () => {
-            const name = usernameInput.value.trim();
-            if(!name) return alert("Enter a name to begin!");
-            localStorage.setItem('trap_user', name);
-            gsap.to("body", { opacity: 0, duration: 0.5, onComplete: () => {
-                window.location.href = 'game.html';
-            }});
-        };
+      <div id="leaderboard-list" class="space-y-2 text-sm">
+        <p class="text-slate-500 italic">Loading scores...</p>
+      </div>
 
-        // Load Scores
-        async function loadScores() {
-            const scores = await getLeaderboard();
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = scores.map((s, i) => `
-                <div class="flex justify-between p-2 border-b border-slate-800">
-                    <span>${i+1}. ${s.username}</span>
-                    <span class="font-mono text-cyan-400">Lvl ${s.level} - ${s.score}pts</span>
-                </div>
-            `).join('') || '<p>No records yet.</p>';
+    </div>
+
+  </div>
+
+  <!-- Script -->
+  <script type="module">
+    import { getLeaderboard } from './firebase.js';
+
+    const startBtn = document.getElementById('start-btn');
+    const usernameInput = document.getElementById('username');
+
+    // 🎬 Animations
+    gsap.from(".hero-section", { opacity: 0, y: 60, duration: 1, ease: "power4.out" });
+    gsap.from(".leaderboard-card", { opacity: 0, delay: 0.5, duration: 1 });
+
+    // 🚀 Start Game
+    startBtn.onclick = () => {
+      const name = usernameInput.value.trim();
+
+      if (!name) {
+        usernameInput.classList.add("shake");
+        setTimeout(() => usernameInput.classList.remove("shake"), 500);
+        return;
+      }
+
+      localStorage.setItem('trap_user', name);
+
+      gsap.to("body", {
+        opacity: 0,
+        duration: 0.5,
+        onComplete: () => {
+          window.location.href = 'game.html';
         }
-        loadScores();
-    </script>
+      });
+    };
+
+    // 🏆 Load Leaderboard
+    async function loadScores() {
+      const scores = await getLeaderboard();
+      const list = document.getElementById('leaderboard-list');
+
+      if (!scores.length) {
+        list.innerHTML = '<p class="text-slate-500 italic">No one escaped yet 😈</p>';
+        return;
+      }
+
+      list.innerHTML = scores.map((s, i) => `
+        <div class="flex justify-between items-center p-2 rounded-lg hover:bg-slate-800 transition-all">
+          <span>${i + 1}. ${s.username}</span>
+          <span class="font-mono text-cyan-400">Lvl ${s.level} • ${s.score} pts</span>
+        </div>
+      `).join('');
+    }
+
+    loadScores();
+  </script>
+
 </body>
-</html>
+    </html>
