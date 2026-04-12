@@ -1,10 +1,15 @@
+/* Style.css */
+
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
 
+/* 🌌 Base */
 body {
     font-family: 'Space Grotesk', sans-serif;
     background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+    overflow-x: hidden;
 }
 
+/* 🔥 Shake Animation (Wrong Answer) */
 .shake {
     animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
 }
@@ -16,6 +21,117 @@ body {
     40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
+/* ✨ Button Base */
+button {
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 💡 Glow on Hover */
+button:hover {
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+}
+
+/* 💥 Click Effect */
+button:active {
+    transform: scale(0.95);
+}
+
+/* 🎮 Game Card Glow */
+#game-card {
+    transition: all 0.3s ease;
+}
+
+/* ⚡ Timer Danger Pulse */
+#timer.text-red-500 {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* 💬 Feedback Text Smooth */
+#feedback {
+    transition: all 0.3s ease;
+}
+
+/* 🎯 Options Grid Buttons */
+#options-container button {
+    font-size: 16px;
+    letter-spacing: 0.5px;
+    background: #020617;
+    border: 1px solid #1e293b;
+}
+
+/* 🟢 Correct Answer Flash */
+.correct {
+    background: #22c55e !important;
+    color: white;
+}
+
+/* 🔴 Wrong Answer Flash */
+.wrong {
+    background: #ef4444 !important;
+    color: white;
+}
+
+/* ✨ Loader Spin */
+#loader div {
+    border-top-color: #06b6d4;
+}
+
+/* 🎭 Input Placeholder (index page) */
 input::placeholder {
     color: #475569;
 }
+
+/* 🎮 Smooth Appear Animation */
+.fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 💎 Glass Effect (Leaderboard) */
+.leaderboard-card {
+    backdrop-filter: blur(10px);
+}
+
+/* 🧠 Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-thumb {
+    background: #0ea5e9;
+    border-radius: 10px;
+}
+
+/* 🌈 Neon Border Effect (future use) */
+.neon-border {
+    border: 1px solid rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+/* 💣 Trap Animation (future levels) */
+.trap-move {
+    animation: moveRandom 2s infinite alternate ease-in-out;
+}
+
+@keyframes moveRandom {
+    0% { transform: translate(0, 0); }
+    50% { transform: translate(10px, -10px); }
+    100% { transform: translate(-10px, 10px); }
+    }
