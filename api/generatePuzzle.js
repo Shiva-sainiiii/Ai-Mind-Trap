@@ -1,36 +1,67 @@
 // /api/generatePuzzle.js
+
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: "Method not allowed" });
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: "Method not allowed" });
+    }
 
     const { level, requestType, currentPuzzle } = req.body;
     const API_KEY = process.env.OPENROUTER_API_KEY;
 
     let prompt = "";
-    
-    // Hint ke liye
+
+    // 💡 HINT REQUEST
     if (requestType === 'hint') {
-        prompt = `The user is stuck on this puzzle: "${currentPuzzle}". Give a very easy, funny hint in Hinglish (Hindi written in English alphabet) that almost gives it away. Max 10 words. Return ONLY the hint text.`;
-    } 
-    // New Puzzle ke liye
+        prompt = `
+User ek puzzle me atka hai:
+"${currentPuzzle}"
+
+Task:
+- Ek funny Hinglish hint do
+- Max 8 words
+- Almost answer reveal ho jaye 😏
+
+Return ONLY plain text.
+`;
+    }
+
+    // 🧠 NEW PUZZLE (MCQ MODE)
     else {
-        // Uniqueness ke liye random topics ki list
-        const topics = ["technology", "food", "daily life", "school/college", "animals", "movies", "internet slang", "nature", "space", "mysterious things"];
+        const topics = [
+            "daily life", "internet", "school", "brain trick",
+            "illusion", "logic twist", "funny situation",
+            "genz humor", "traps", "weird facts"
+        ];
+
         const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+        const randomSeed = Math.floor(Math.random() * 10000);
 
-        // Random element add kiya taaki AI hamesha naya soche
-        const randomSeed = Math.floor(Math.random() * 10000); 
+        prompt = `
+Create a FUN, TRICKY, SHORT puzzle for a mobile game.
 
-        prompt = `Generate a completely unique, fun logic puzzle or riddle for a web game.
-        Topic Focus: ${randomTopic}
-        Randomization Seed: ${randomSeed}
-        Level: ${level}
-        Difficulty: ${level < 3 ? 'Very Easy' : 'Medium'}
-        
-        STRICT RULES:
-        1. LANGUAGE: The puzzle text MUST be written in conversational 'Hinglish' (a mix of Hindi and English, written in English script. Example: "Main ek aisi cheez hu jo...").
-        2. ANSWER FORMAT: The answer MUST be strictly ONE SINGLE WORD in English (so the user can type it easily).
-        3. UNIQUENESS: Do not repeat common or classic riddles. Create something brand new based on the Topic Focus.
-        4. OUTPUT: Return ONLY valid JSON format: {"puzzle": "hinglish riddle text here", "answer": "englishword"}. No markdown, no extra text.`;
+Details:
+- Language: Hinglish (Hindi + English mix, Roman script)
+- Tone: Funny, slightly sarcastic 😈
+- Topic: ${randomTopic}
+- Level: ${level}
+- Seed: ${randomSeed}
+
+Rules:
+1. Puzzle should be SHORT (1–2 lines max)
+2. Answer must be ONE WORD (simple English word)
+3. Make it tricky / misleading / brain trap
+4. Provide EXACTLY 4 options (including correct one)
+5. Options should be confusing but fair
+6. Avoid repeating common riddles
+
+Output STRICT JSON format ONLY:
+{
+  "type": "mcq",
+  "puzzle": "question here",
+  "options": ["opt1", "opt2", "opt3", "opt4"],
+  "answer": "correctOption"
+}
+`;
     }
 
     try {
@@ -43,18 +74,50 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 model: "openrouter/free",
                 messages: [{ role: "user", content: prompt }],
-                temperature: 0.9, // Higher temperature means more creative and unique answers
+                temperature: 0.9,
                 top_p: 0.9
             })
         });
 
         const data = await response.json();
-        const content = data.choices[0].message.content.replace(/```json|```/g, "").trim();
-        
-        res.status(200).json(JSON.parse(content));
+
+        let content = data.choices[0].message.content
+            .replace(/```json|```/g, "")
+            .trim();
+
+        // 🛠️ SAFE PARSE
+        let parsed;
+
+        try {
+            parsed = JSON.parse(content);
+        } catch {
+            // fallback (agar AI ne galat format diya)
+            parsed = {
+                puzzle: "Main bina pair ke bhaagta hu... pakad sakta hai? 😏",
+                options: ["time", "shadow", "wind", "sound"],
+                answer: "time"
+            };
+        }
+
+        // 🧠 VALIDATION (IMPORTANT)
+        if (!parsed.options || parsed.options.length !== 4) {
+            parsed.options = ["time", "shadow", "wind", "light"];
+        }
+
+        if (!parsed.answer) {
+            parsed.answer = parsed.options[0];
+        }
+
+        res.status(200).json(parsed);
+
     } catch (error) {
         console.error("AI Error:", error);
-        res.status(500).json({ error: "AI is tired, refresh please!" });
+
+        // 🔥 fallback puzzle (game kabhi rukna nahi chahiye)
+        res.status(200).json({
+            puzzle: "Main hamesha aage badhta hu, kabhi rukta nahi 😏",
+            options: ["time", "shadow", "wind", "light"],
+            answer: "time"
+        });
     }
-                        }
-            
+            }
