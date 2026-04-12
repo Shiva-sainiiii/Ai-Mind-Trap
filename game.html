@@ -4,54 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Playing | AI Mind Trap</title>
+
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="bg-slate-950 text-white">
+
     <div class="max-w-4xl mx-auto min-h-screen p-4 flex flex-col">
+
+        <!-- TOP BAR -->
         <div class="flex justify-between items-center py-6">
-            <div class="text-slate-400 font-bold">LEVEL <span id="lvl-display" class="text-cyan-500">1</span></div>
+
+            <div class="text-slate-400 font-bold">
+                LEVEL <span id="lvl-display" class="text-cyan-500">1</span>
+            </div>
+
             <div class="bg-slate-900 px-4 py-1 rounded-full border border-slate-700">
                 SCORE: <span id="score-display" class="text-yellow-500">0</span>
             </div>
-            <div id="timer" class="font-mono text-red-500 text-xl font-bold">30s</div>
+
+            <div id="timer" class="font-mono text-red-500 text-xl font-bold">
+                30s
+            </div>
+
         </div>
 
+        <!-- GAME AREA -->
         <div class="flex-grow flex flex-col justify-center items-center">
-            <div id="game-card" class="w-full max-w-2xl bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
-                <div id="loader" class="absolute inset-0 bg-slate-900 flex items-center justify-center z-10">
+
+            <div id="game-card"
+                class="w-full max-w-2xl bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+
+                <!-- Loader -->
+                <div id="loader"
+                    class="absolute inset-0 bg-slate-900 flex items-center justify-center z-10">
                     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-cyan-500"></div>
                 </div>
 
+                <!-- CONTENT -->
                 <div id="puzzle-content" class="space-y-6 opacity-0">
-                    <h2 class="text-2xl font-medium leading-relaxed text-slate-200" id="puzzle-text">
-                        Generating your first challenge...
+
+                    <!-- Puzzle -->
+                    <h2 id="puzzle-text"
+                        class="text-2xl font-medium leading-relaxed text-slate-200 text-center">
+                        Loading trap...
                     </h2>
-                    
-                    <div class="space-y-4">
-                        <input type="text" id="answer-input" placeholder="Type your answer..." 
-                            class="w-full bg-slate-950 border border-slate-700 p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 text-lg transition-all">
+
+                    <!-- OPTIONS (NEW) -->
+                    <div id="options-container" class="grid grid-cols-2 gap-4">
+
+                        <!-- Options dynamically ayenge -->
                         
-                        <div class="flex gap-4">
-                            <button id="submit-btn" class="flex-grow bg-cyan-600 hover:bg-cyan-500 py-4 rounded-xl font-bold uppercase tracking-widest transition-all">
-                                Submit
-                            </button>
-                            <button id="hint-btn" class="px-6 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all">
-                                💡 Hint
-                            </button>
-                        </div>
                     </div>
-                    <p id="feedback" class="h-6 text-center font-bold"></p>
+
+                    <!-- ACTION BUTTONS -->
+                    <div class="flex gap-4 pt-2">
+
+                        <button id="hint-btn"
+                            class="flex-1 bg-slate-800 hover:bg-slate-700 py-3 rounded-xl transition-all">
+                            💡 Hint (-10)
+                        </button>
+
+                        <button id="skip-btn"
+                            class="flex-1 bg-red-600 hover:bg-red-500 py-3 rounded-xl transition-all">
+                            Skip ❌
+                        </button>
+
+                    </div>
+
+                    <!-- Feedback -->
+                    <p id="feedback"
+                        class="h-6 text-center font-bold"></p>
+
                 </div>
             </div>
+
         </div>
 
+        <!-- FOOTER -->
         <div class="py-10 text-center text-slate-500 text-xs">
-            AI Mind Trap v1.0 • Powered by OpenRouter
+            AI Mind Trap v2.0 • Outsmart the AI 😈
         </div>
+
     </div>
 
+    <!-- SCRIPT -->
     <script type="module" src="script.js"></script>
+
 </body>
 </html>
