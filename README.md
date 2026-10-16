@@ -1,33 +1,63 @@
 # AI Mind Trap
 
-An AI-powered game designed to challenge and entertain. This project integrates AI elements to create a unique gaming experience.
+Seedhe lagne wale trick sawaalon ka game. Ek galti, aur phans gaye.
 
-## Features
+**Live:** [ai-mind-trap.vercel.app](https://ai-mind-trap.vercel.app)
 
-*   AI-driven gameplay
-*   Interactive game interface
-*   Engaging challenges
+## Kya hai
 
-## Tech Stack
+- 100 readymade Hinglish trick sawaal (`questions.js`), AI ka wait nahi, har sawaal instant
+- 3 difficulty tier: level 1-5 easy, 6-10 medium, 11+ hard
+- Har sawaal ka apna hint (instant), skip, aur level ke saath kam hota timer
+- Same sawaal jaldi repeat nahi hota (browser yaad rakhta hai kaunse dekh liye)
+- Firebase leaderboard (Top 5)
+- Laptop aur mobile dono ke liye responsive, `prefers-reduced-motion` ka respect
 
-*   JavaScript
-*   HTML
-*   CSS
-*   Firebase (for backend/data storage, as indicated by `firebase.js`)
+## Files
 
-## Live Demo
+```
+index.html     home page (naam, start, leaderboard)
+game.html      game page
+style.css      poora theme (green felt, ivory card, brass)
+home.js        home page logic
+game.js        game logic + settings (CFG)
+questions.js   100 sawaalon ka data
+ui.js          shared helpers (moire rings, count-up, safe storage)
+firebase.js    leaderboard save / load
+```
 
-[ai-mind-trap.vercel.app](https://ai-mind-trap.vercel.app)
+Koi build step nahi hai. Tailwind aur GSAP ab use nahi hote, sirf Google Fonts load hote hain
+(Bodoni Moda + Instrument Sans).
 
-## Setup
+## Naya sawaal kaise add karein
 
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/Shiva-sainiiii/Ai-Mind-Trap.git
-    ```
-2.  Navigate to the project directory:
-    ```bash
-    cd Ai-Mind-Trap
-    ```
-3.  Open `index.html` or `game.html` in your web browser.
-4.  Configure Firebase: Update `firebase.js` with your Firebase project credentials if necessary.
+`questions.js` mein ek line add karo:
+
+```js
+{ t: 1, q: "Sawaal yahan?", a: "sahi jawab", w: ["galat 1", "galat 2", "galat 3"], h: "Funny hint" },
+```
+
+- `t` = tier (1 easy, 2 medium, 3 hard)
+- `a` sahi jawab, `w` exactly 3 galat options. Options game mein har baar shuffle hote hain.
+
+## Game balance badalna
+
+`game.js` ke upar `CFG` object hai: time, hint/skip ka cost, tier kis level pe badalta hai, sab wahin se.
+
+## Locally chalana
+
+ES modules use hote hain, isliye `index.html` ko seedha double-click karke nahi, server se kholo:
+
+```bash
+python3 -m http.server 8000
+# phir http://localhost:8000 kholo
+```
+
+## Deploy
+
+Static site hai, Vercel pe seedha chalti hai. Ab `/api` folder aur `OPENROUTER_API_KEY` ki zaroorat nahi.
+
+## Firebase
+
+`firebase.js` mein apna project config hai. Leaderboard `leaderboard` collection mein score save karta hai.
+Firestore rules mein write ko limit karna accha rahega (score aur username ki range check ke saath).

@@ -1,132 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>AI Mind Trap | Escape the Logic</title>
+  <meta name="description" content="Sawal seedhe lagte hain, jawab nahi. 100 trick sawaalon ka game. Ek galti aur phans gaye.">
+  <meta name="theme-color" content="#0a2b22">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a2b22'/%3E%3Cpath transform='translate(4 4)' fill='%23d3ab5c' d='M12 2C12 2 4 9 4 14a4 4 0 0 0 7 2.6c-.2 2-1 3.6-2.5 5.4h7c-1.5-1.8-2.3-3.4-2.5-5.4A4 4 0 0 0 20 14c0-5-8-12-8-12z'/%3E%3C/svg%3E">
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
-  <!-- CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500..800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="text-white overflow-hidden">
+<body class="page-home">
 
-  <!-- Background Glow -->
-  <div class="absolute inset-0 z-0">
-    <div class="absolute w-[500px] h-[500px] bg-cyan-500/20 blur-[120px] rounded-full top-[-100px] left-[-100px]"></div>
-    <div class="absolute w-[400px] h-[400px] bg-purple-600/20 blur-[120px] rounded-full bottom-[-100px] right-[-100px]"></div>
-  </div>
+  <!-- .page rings ke overflow ko clip karta hai, taaki mobile pe side scroll na aaye -->
+  <div class="page">
 
-  <!-- Main Container -->
-  <div id="app" class="relative z-10 h-screen flex flex-col items-center justify-center p-4">
+  <header class="topbar">
+    <a class="wordmark" href="index.html">AI Mind Trap</a>
+  </header>
 
-    <!-- Title Section -->
-    <div class="text-center hero-section">
+  <main class="home">
 
-      <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
-        AI MIND TRAP
+    <section class="hero">
+      <!-- Moire rings: JS se bharte hain -->
+      <div class="rings" id="rings" aria-hidden="true"></div>
+
+      <h1 class="title" aria-label="Mind Trap">
+        <span class="line"><span>Mind</span></span>
+        <span class="line"><span>Trap</span></span>
       </h1>
 
-      <p class="text-slate-400 mb-6 text-lg">
-        Outsmart the AI... or get trapped forever 😈
-      </p>
+      <p class="tagline reveal" style="--d: .9s">Sawal seedhe lagte hain. Jawab nahi.</p>
 
-      <!-- Username Input -->
-      <input 
-        type="text" 
-        id="username" 
-        placeholder="Enter Your Name"
-        class="block w-full max-w-xs mx-auto bg-slate-900 border border-slate-700 p-3 rounded-lg focus:outline-none focus:border-cyan-500 transition-all mb-4 text-center"
-      >
+      <form class="start reveal" style="--d: 1.05s" id="start-form" novalidate>
+        <label class="field" for="username">
+          <span class="field-label">Apna naam likho</span>
+          <input id="username" name="username" type="text" maxlength="16"
+                 autocomplete="nickname" autocapitalize="words" spellcheck="false"
+                 placeholder="Jaise Shiva" aria-describedby="name-error">
+        </label>
+        <p class="field-error" id="name-error" role="alert"></p>
+        <button class="btn btn-primary" type="submit" id="start-btn">Game shuru karo</button>
+      </form>
 
-      <!-- Start Button -->
-      <button 
-        id="start-btn"
-        class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:scale-105 px-10 py-4 rounded-full font-bold text-xl transition-all shadow-lg shadow-cyan-900/40 active:scale-95"
-      >
-        START ESCAPE 🚀
-      </button>
+      <p class="fineprint reveal" style="--d: 1.2s">100 trick sawaal. Har level pe time kam hota jata hai.</p>
+    </section>
 
-      <!-- Mode Tag -->
-      <p class="mt-4 text-xs text-slate-500">
-        🧠 Trick Puzzles • 🎭 Mind Games • 🪤 AI Traps
-      </p>
+    <section class="board reveal" style="--d: 1.1s" aria-labelledby="board-title">
+      <h2 id="board-title">Top 5 khiladi</h2>
+      <ol class="board-list" id="board-list" aria-busy="true">
+        <li class="board-row is-skeleton"><span class="bar"></span></li>
+        <li class="board-row is-skeleton"><span class="bar"></span></li>
+        <li class="board-row is-skeleton"><span class="bar"></span></li>
+      </ol>
+      <p class="board-note" id="board-note" hidden></p>
+    </section>
 
-    </div>
+  </main>
 
-    <!-- Leaderboard -->
-    <div class="mt-12 w-full max-w-md bg-slate-900/60 backdrop-blur-xl p-6 rounded-2xl border border-slate-800 leaderboard-card">
-
-      <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-        🏆 Top Escapists
-      </h2>
-
-      <div id="leaderboard-list" class="space-y-2 text-sm">
-        <p class="text-slate-500 italic">Loading scores...</p>
-      </div>
-
-    </div>
+  <footer class="foot">Developed by Shiva Saini</footer>
 
   </div>
 
-  <!-- Script -->
-  <script type="module">
-    import { getLeaderboard } from './firebase.js';
-
-    const startBtn = document.getElementById('start-btn');
-    const usernameInput = document.getElementById('username');
-
-    // 🎬 Animations
-    gsap.from(".hero-section", { opacity: 0, y: 60, duration: 1, ease: "power4.out" });
-    gsap.from(".leaderboard-card", { opacity: 0, delay: 0.5, duration: 1 });
-
-    // 🚀 Start Game
-    startBtn.onclick = () => {
-      const name = usernameInput.value.trim();
-
-      if (!name) {
-        usernameInput.classList.add("shake");
-        setTimeout(() => usernameInput.classList.remove("shake"), 500);
-        return;
-      }
-
-      localStorage.setItem('trap_user', name);
-
-      gsap.to("body", {
-        opacity: 0,
-        duration: 0.5,
-        onComplete: () => {
-          window.location.href = 'game.html';
-        }
-      });
-    };
-
-    // 🏆 Load Leaderboard
-    async function loadScores() {
-      const scores = await getLeaderboard();
-      const list = document.getElementById('leaderboard-list');
-
-      if (!scores.length) {
-        list.innerHTML = '<p class="text-slate-500 italic">No one escaped yet 😈</p>';
-        return;
-      }
-
-      list.innerHTML = scores.map((s, i) => `
-        <div class="flex justify-between items-center p-2 rounded-lg hover:bg-slate-800 transition-all">
-          <span>${i + 1}. ${s.username}</span>
-          <span class="font-mono text-cyan-400">Lvl ${s.level} • ${s.score} pts</span>
-        </div>
-      `).join('');
-    }
-
-    loadScores();
-  </script>
-
+  <script type="module" src="home.js"></script>
 </body>
-    </html>
+</html>
